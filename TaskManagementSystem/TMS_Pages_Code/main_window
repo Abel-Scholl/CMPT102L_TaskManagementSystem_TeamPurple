@@ -1,1 +1,184 @@
+import datetime
+from tkinter import *
+from tkinter.ttk import *
+
+window = Tk()
+
+window.title('Task Management System')
+window.geometry('500x500')
+
+BG_COLOR = "Green"
+FG_COLOR = "White"
+
+##Months
+monthsFrame = Frame(master=window)#, bg="Green")
+selected = StringVar()
+
+monthsCombo = Combobox(monthsFrame)
+monthsCombo['values']= ("January", "February", "March", "April",
+                  "May", "June", "July", "August",
+                  "September","October","November","December")
+monthsCombo.current(1)
+monthsCombo.pack(side=TOP)
+
+monthsFrame.grid(column=0, row=0)
+
+##Calendar
+calendarFrame=Frame(master=window)#, bg="Green")
+dayNum=0
+days = ["Sun","Mon", "Tue","Wed","Thu","Fri","Sat"]
+dateToday = datetime.date.today()
+
+weekdayLabel = Label()
+for i in range(5):
+    for j in range(7):
+        ##frame = tk.Frame(master=window)
+        if dayNum > 30:
+            break
+        else:
+            dayNum+=1
+            button = Button(master=calendarFrame, text=f"{dayNum}")
+            button.grid(row=i, column=j, sticky='nsew')
+
+calendarFrame.grid(column=0, row=1)
+
+##from tkinter import *
+##from tkinter.ttk import *
+##
+##window = Tk()
+##
+##window.title("Combobox tutorial")
+##window.geometry('350x200')
+##combo = Combobox(window)
+##combo['values']= ("January", "February", "March", "April",
+##                  "May", "June", "July", "August",
+##                  "September","October","November","December")
+##combo.current(1)
+##combo.pack()#set the selected itemcombo.grid(column=0, row=0)
+##window.mainloop()
+
+
+import datetime
+from tkinter import *
+from tkinter.ttk import *
+
+##CURRENT_DAY = datetime.date.today()
+
+window = Tk()
+
+window.title('Task Management System')
+window.geometry('550x500')
+##window.configure(bg="Green")
+
+BG_COLOR = "Green"
+FG_COLOR = "White"
+
+##Welcome Banner
+welcFrame = Frame(master=window)
+welcomeBanner = Label(welcFrame, text="[User]'s Calendar",
+                      font = ("Comic Sans MS",20))
+welcomeBanner.pack(side=LEFT)
+welcFrame.pack()
+
+
+##Months and Years as combo boxes + go button
+monthsFrame = Frame(master=window)#, bg="Green")
+
+monthsCombo = Combobox(monthsFrame)
+monthsCombo['values']= ("January", "February", "March", "April",
+                  "May", "June", "July", "August",
+                  "September","October","November","December")
+monthsCombo.current(1)
+monthsCombo.pack(side=LEFT)
+
+yearsCombo = Combobox(monthsFrame)
+yearsCombo['values']= ("2022", "2023", "2024", "2025",
+                  "2026", "2027", "2028", "2029",
+                  "2030","2031","2032","2033")
+yearsCombo.current(1)
+yearsCombo.pack(side=LEFT)
+
+##changes calendar to reflect selected info
+goButtonCal = Button(monthsFrame, text="Go")
+goButtonCal.pack(side=LEFT)
+
+monthsFrame.pack()
+
+##Calendar as buttons
+calendarFrame=Frame(master=window)#, bg="Green")
+dayNum=0
+days = ["Mon", "Tue","Wed","Thu","Fri","Sat", "Sun"]
+dateToday = datetime.date.today()
+
+##creates a label for each weekday starting with monday
+for d in range(len(days)):
+    weekdayLabel = Label(calendarFrame, text=days[d],font=("Comic Sans MS", 12))
+    weekdayLabel.grid(column=d, row=0)
+
+##Creates a button for each day
+##when clicked, the current tasks will appear
+##or a message saying there are no tasks for that day
+    m=True##placeholder for datetime condition
+for i in range(5):
+    for j in range(7):
+        ##frame = tk.Frame(master=window)
+        if dayNum > 30:
+            break
+        else:
+            if m==True:
+                ##placeholder for datetime,
+                ##need int value representing day of the week (0-6)
+                ##for the 1st day of the month.
+                ##if month-1-year is on m=weekday (0-6)
+                ##print m labels
+                label= Label(calendarFrame, text="   ")
+                label.grid(row=i+1, column=j, sticky='nsew')
+                m=False
+            else:
+                dayNum+=1
+                button = Button(calendarFrame, text=f"{dayNum}")
+                button.grid(row=i+1, column=j, sticky='nsew')
+    
+calendarFrame.pack()
+
+##Frame for search function
+searchFrame = Frame(master=window)
+searchLabel=Label(searchFrame, text="Search by:", font=("Comic Sans MS", 10))
+searchLabel.pack(side=LEFT)
+
+searchByCombo = Combobox(searchFrame)
+searchByCombo['values']= ("Month", "Day", "Year", "Time",
+                  "Title", "Duration", "Description")
+searchByCombo.current(1)
+searchByCombo.pack(side=LEFT)
+
+goButtonSearch = Button(searchFrame, text="Go")
+goButtonSearch.pack(side=LEFT)
+
+searchFrame.pack()
+
+##Frame for task related options
+##including task list,
+##task options (add, edit, remove)
+
+taskFrame = Frame(master=window)
+taskLabelFrame = LabelFrame(taskFrame, text='Current Tasks')
+
+
+##if tasks exist for that search. else, label says: "There are no tasks scheduled for this day"
+task = Radiobutton(taskLabelFrame, text="placeholder") ##find way to click away and clear selection?
+task.pack()
+taskLabelFrame.pack()
+
+
+addButton = Button(taskFrame, text= "Add New Task")##default to selected day
+editButton = Button(taskFrame, text= "Edit Selected Task") ##if not selected, "please select a task"
+removeButton = Button(taskFrame, text= "Remove Selected Task")##same as above and also "Are you sure?"
+addButton.pack()
+editButton.pack()
+removeButton.pack()
+settingsButton=Button(taskFrame, text="User Settings")
+settingsButton.pack()
+
+taskFrame.pack()
 
