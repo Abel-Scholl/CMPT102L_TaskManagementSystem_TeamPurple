@@ -9,7 +9,7 @@ import tkinter as tk
 # Creating the adujstable window
 window = tk.Tk()
 window.title('Add | Task Management System')
-window.geometry('500x1000')
+window.geometry('800x500')
 window.grid_rowconfigure(1, weight=1)
 window.grid_columnconfigure(0, weight=1)
 
