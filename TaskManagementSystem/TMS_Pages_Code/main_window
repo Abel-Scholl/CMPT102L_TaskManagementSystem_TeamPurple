@@ -88,22 +88,10 @@ for i in range(5):
     
 calendarFrame.pack()
 
-##Frame for search function
+##Frame for search function with button to take user to search page
 searchFrame = Frame(master=window)
-searchLabel=Label(searchFrame, text="Search by:", font=("Comic Sans MS", 10))
-searchLabel.pack(side=LEFT)
-
-searchByCombo = Combobox(searchFrame, width=12, state="readonly")
-searchByCombo['values']= ("No Criteria", "Month", "Day", "Year", "Time",
-                  "Title", "Duration", "Description")
-searchByCombo.set("No Criteria Set")
-
-searchByCombo.current(0)
-searchByCombo.pack(side=LEFT, pady=10)
-
-goButtonSearch = Button(searchFrame, text="Go")
-goButtonSearch.pack(side=LEFT)
-
+searchButton = Button(searchFrame, text="Search by...")
+searchButton.pack()
 searchFrame.pack()
 
 ##Frame for task related options
