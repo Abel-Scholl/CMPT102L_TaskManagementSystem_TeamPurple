@@ -102,6 +102,7 @@ class Task(User):
     def saveTask(self):
         ##this is where the username and
         ##all Task attributes will be saved to a csv file.
+        infoList = [self.username, self.title, self.date, self.time, self.duration, self.description]
         pass
 
 
