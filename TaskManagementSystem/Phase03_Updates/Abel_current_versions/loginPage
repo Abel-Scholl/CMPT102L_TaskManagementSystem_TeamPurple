@@ -1,0 +1,105 @@
+##TMS Login
+##11/19/22
+
+##Updates:
+#Abel's current version of login page
+##login system works as long as users are saved in csv
+##connected to main page
+
+import tkinter as tk
+import TMSTaskClass as TC ##TMSTaskClass is the name I have for the file for User and Task classes, change as necessary
+from tkinter import messagebox
+import csv
+
+import TMS_Main_Page as M ##name I have for the file for MainFunc
+
+
+adminExists=False
+
+##ADMIN = TC.User("A","6", True)##initialize admin w/username and password
+##ADMIN.createNewUser() ##this line saves the new user to the csv 
+
+##def createAdminUser():
+##    ##used for initialization of a new admin user upon first run of application
+##    with open('userLoginInfo.csv', 'r') as file:
+##        csvReader=csv.reader(file)
+##        for member in csvReader:
+##            if member[2]==True:
+##                adminExists=True
+##        if adminExists==False:
+##             ADMIN = TC.User("A","6", TRUE)##initialize admin w/username and password
+##             ADMIN.createNewUser()
+
+def login(username, password, window):
+    ##checks the csv file to see if inputted username
+    ##and password matches saved csv file
+    ##if yes, continues to main window
+    ##else, error message
+    with open('userLoginInfo.csv', 'r') as file:
+        csvReader=csv.reader(file)
+        found=False
+        for member in csvReader:
+            if member[0]==username and member[1]==password:
+                found=True
+                user=member 
+                Exit(window)
+                M.mainFunc(member)
+                print(member)
+        if found==False:
+            messagebox.showwarning('Access Denied', 'User not found.')
+                
+                
+
+def Exit(window):
+    ##closes the window when exit button is clicked
+    window.destroy()
+    
+
+def loginPage():
+
+        BG_COLOR = "Green"
+        FG_COLOR = "White"
+
+        ##Create window
+        window=tk.Tk()
+        window.title('Task Management System')
+        window.geometry('220x130')
+
+        ##Create Frame
+        BodyFrame=tk.Frame(window, bg=BG_COLOR, height=200, width=130)
+        BodyFrame.grid(row=1, sticky="nsew")
+
+        window.grid_rowconfigure(1, weight=1) ##allows user to adjust window
+
+        window.grid_columnconfigure(0, weight=1)
+
+        ##username and password Labels 
+        titleLabel = tk.Label(BodyFrame, text="Task Manager", bg = BG_COLOR, fg= FG_COLOR)
+        titleLabel.grid(column=2,row=0)
+
+        userLabel = tk.Label(BodyFrame, text="Username", bg = BG_COLOR, fg= FG_COLOR)
+        userLabel.grid(column=1,row=1)
+
+        passLabel = tk.Label(BodyFrame, text="Password", bg = BG_COLOR, fg= FG_COLOR)
+        passLabel.grid(column=1,row=2)
+
+        ##username and password entry boxes
+        userEntry = tk.Entry(BodyFrame)
+        userEntry.grid(column=2,row=1)
+
+        passEntry = tk.Entry(BodyFrame)
+        passEntry.grid(column=2,row=2)
+
+        ##Login and exit buttons
+        loginButton = tk.Button(BodyFrame, text='Log In',
+                                command=lambda:login(userEntry.get(), passEntry.get(), window))
+        loginButton.grid(column=2,row=5)
+
+        exitButton=tk.Button(BodyFrame, text='Exit', command=lambda:Exit(window))
+        exitButton.grid(column=3, row=6)
+
+
+        window.mainloop()
+
+
+loginPage()
