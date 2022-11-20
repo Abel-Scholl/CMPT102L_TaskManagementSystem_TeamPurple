@@ -1,0 +1,108 @@
+##TMS Login
+##11/19/22 Updates
+## login system works as long as users are saved in csv
+## connected to main page
+
+
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import *
+import Class as TC #name for the file of User and task classes
+from PIL import Image, ImageTk # import for image
+import csv 
+import Main as M # importing main file of main page
+
+adminExists = False
+
+U = [4]
+
+# Only need to run this once to get admin then can comment it
+ADMIN = TC.User("A","6", True)##initialize admin w/username and password
+#ADMIN.createNewUser() ##this line saves the new user to the csv
+
+
+def log(username, password, window):
+    # checks the csv file to see if inputted username
+    # and password matches saved csv file
+    # if yes, continues to main window
+    # else, error message
+    with open ('userLoginInfo.csv', 'r') as file:
+        csvReader = csv.reader(file)
+        found=False
+        for member in csvReader:
+            if member[0]==username and member[1]==password:
+                found = True
+                user=member
+                Exit(window)
+                M.mainFunc(member)
+            if found == False:
+                messagebox.showwarning('Access Denied', 'User not found.')
+
+    # Storing User Entry for later in add
+    with open ('UserForAdd.csv', 'w', newline = '') as file:
+        csvWriter = csv.writer(file) # 'W' mode replaces all, so the csv doesn't have to be later deleted
+        csvWriter.writerow([username])
+
+
+def Exit(window):
+    # closes the window when exit button is clicked
+    window.destroy()
+
+def LogPage():
+
+    BG_COLOR = "Green"
+    FG_COLOR = "White"
+
+    # Create the Window
+    window=tk.Tk()
+    window.title('Task Management System')
+    window.geometry('450x200')
+    window.configure(bg = 'Green')
+    # Create the Frames
+    BodyFrame=tk.Frame(window, bg=BG_COLOR, height=300, width=200)
+    BodyFrame.grid(row=1, column = 2)
+
+    PicFrame = tk.Frame(window, bg = BG_COLOR, height = 300, width = 200)
+    PicFrame.grid(row = 1, column = 1)
+
+    window.resizable(width = False, height = False)
+
+    # Labels
+    titleLabel = tk.Label(BodyFrame, text="Task Manager", bg = BG_COLOR, fg= FG_COLOR)
+    titleLabel.grid(column=2,row=0)
+
+    userLabel = tk.Label(BodyFrame, text="Username", bg = BG_COLOR, fg= FG_COLOR)
+    userLabel.grid(column=1,row=1)
+
+    passLabel = tk.Label(BodyFrame, text="Password", bg = BG_COLOR, fg= FG_COLOR)
+    passLabel.grid(column=1,row=2)
+
+    # Image
+    img = Image.open("LogPage.png") # load image
+    resized_image = img.resize((200,200), Image.Resampling.LANCZOS) # resize, remove structural padding
+    new_image = ImageTk.PhotoImage(resized_image)# convert to photoimage
+    label = Label(PicFrame, image = new_image) #display the image
+    label.grid(row=2, column = 4)
+
+
+    ##username and password entrys
+    userEntry = tk.Entry(BodyFrame)
+    userEntry.grid(column=2,row=1)
+               
+    passEntry = tk.Entry(BodyFrame)
+    passEntry.grid(column=2,row=2)
+        
+    loginButton = tk.Button(BodyFrame, text='Log In', command = lambda:log(userEntry.get(), passEntry.get(), window))
+    loginButton.grid(column=2,row=5)
+
+    exitButton=tk.Button(BodyFrame, text='Exit', command=lambda:Exit(window))
+    exitButton.grid(column=3, row=6)
+
+    
+    window.mainloop()
+
+
+LogPage()
+
+#if __name__ == "__main__":
+   # LogPage()
