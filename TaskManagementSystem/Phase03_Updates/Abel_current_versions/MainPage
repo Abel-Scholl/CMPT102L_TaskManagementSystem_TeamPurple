@@ -5,7 +5,10 @@
 ##Updates:
 ##Abel's current version of Main Page
 ##Gets the user's attributes after running the login page
+##calendar almost works?
+##radiobutton changed to text box
 
+import calendar
 import datetime
 from tkinter.ttk import Combobox
 from tkinter import *
@@ -14,6 +17,42 @@ import TMSTaskClass as TC ##my current name for class file
 from tkinter import messagebox
 import csv
 
+def responsiveCalendar(window, user, yC, monthsList, mC, cF):
+    m=monthsList.index(mC)+1
+    today = datetime.date.today()
+    dayNum=0
+    x = calendar.monthrange(int(yC), m)
+    daysInMonth = x[1]
+
+    
+    k=(datetime.date(int(yC), m, 1)).weekday() ##the first day of the chosen month of chosen year
+    count = 0
+
+    cF.destroy        
+            
+    ##Creates a button for each day
+    ##when clicked, the current tasks will appear
+    ##or a message saying there are no tasks for that day
+    
+    for i in range(6):
+        for j in range(7):
+            
+            if dayNum < daysInMonth:
+                if count<k: ##creates a label for as many days before first day of month
+                    label= Label(cF, text="   ", bg='green')
+                    label.grid(row=i+1, column=j, sticky='nsew')
+                    count+=1
+                else:
+                    dayNum+=1
+                    if today.day == dayNum and today.month == m and str(today.year)==yC:
+                        button = Button(cF, text=f"{dayNum}", fg="red")#, command=)
+                        button.grid(row=i+1, column=j, sticky='nsew')
+                    else:
+                        button = Button(cF, text=f"{dayNum}")
+                        button.grid(row=i+1, column=j, sticky='nsew')
+                    print(dayNum, dayNum <= daysInMonth)
+            
+               
 
 def mainFunc(user):
     window = Tk()
@@ -36,66 +75,40 @@ def mainFunc(user):
     ##Months and Years as combo boxes + go button
     monthsFrame = Frame(master=window, bg='green')
 
-    monthsCombo = Combobox(monthsFrame,width=10,state="readonly")
-    monthsCombo['values']= ("January", "February", "March", "April",
+    monthsList = ["January", "February", "March", "April",
                       "May", "June", "July", "August",
-                      "September","October","November","December")
+                      "September","October","November","December"]
+    
+    monthsCombo = Combobox(monthsFrame,width=10,state="readonly")
+    monthsCombo['values']= (monthsList)
     monthsCombo.current((datetime.date.today().month)-1)
     monthsCombo.pack(side=LEFT)
 
-    yearsCombo = Combobox(monthsFrame,width=6,state="readonly")
-    yearsCombo['values']= ("2022", "2023", "2024", "2025",
+    yearsList = ["2022", "2023", "2024", "2025",
                       "2026", "2027", "2028", "2029",
-                      "2030","2031","2032","2033")
+                      "2030","2031","2032","2033"]
+    
+    yearsCombo = Combobox(monthsFrame,width=6,state="readonly")
+    yearsCombo['values']= (yearsList)
     yearsCombo.current((datetime.date.today().year)-2022)
     yearsCombo.pack(side=LEFT, pady=10)
 
-    ##changes calendar to reflect selected info
-    goButtonCal = Button(monthsFrame, text="Go")
-    goButtonCal.pack(side=LEFT)
-
-    monthsFrame.pack()
-
     ##Calendar as buttons
     calendarFrame=Frame(master=window, bg="Green")
-    dayNum=0
-    days = ["Monday", "Tuesday","Wednesday","Thursday","Friday","Saturday", "Sunday"]
+    days = ["Mon", "Tue","Wed","Thu","Fri","Sat", "Sun"]
     dateToday = datetime.date.today()
-    ##if m==(datetime.date(year, month, day)).weekday() using later dont mind me
-
+    
     ##creates a label for each weekday starting with monday
     for d in range(len(days)):
         weekdayLabel = Label(calendarFrame, text=days[d], bg='green', fg='white', font=("Comic Sans MS", 12))
         weekdayLabel.grid(column=d, row=0)
 
-        
+    ##changes calendar to reflect selected info
+    showCalendarButton = Button(monthsFrame, text="Show Calendar",
+                         command=lambda:responsiveCalendar(window, user, yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame))
+    showCalendarButton.pack(side=LEFT)
 
-    ##Creates a button for each day
-    ##when clicked, the current tasks will appear
-    ##or a message saying there are no tasks for that day
-        m=True##placeholder for datetime condition
-    for i in range(5):
-        for j in range(7):
-            ##frame = tk.Frame(master=window)
-            if dayNum > 30:
-                break
-            else:
-                if m==True:
-                    ##placeholder for datetime,
-                    ##need int value representing day of the week (0-6)
-                    ##for the 1st day of the month.
-                    ##if month-1-year is on m=weekday (0-6)
-                    ##print m labels
-                    label= Label(calendarFrame, text="   ", bg='green')
-                    label.grid(row=i+1, column=j, sticky='nsew')
-                    m=False
-                else:
-                    dayNum+=1
-                    if datetime.date.today().day == dayNum:
-                        button = Button(calendarFrame, text=f"{dayNum}", fg="red")#, command=)
-                    else:
-                        button = Button(calendarFrame, text=f"{dayNum}")
-                    button.grid(row=i+1, column=j, sticky='nsew')
+    monthsFrame.pack()
         
     calendarFrame.pack()
 
@@ -126,8 +139,8 @@ def mainFunc(user):
 
 
     ##if tasks exist for that day. else, label says: "There are no tasks scheduled for this day"
-    task = Radiobutton(taskLabelFrame, text="placeholder") ##This button is being weird. I dont know why. (i cant deselect it)
-    task.pack()
+    tasksTextBox = Text(taskLabelFrame, width = 20, height=10) ##This button is being weird. I dont know why. (i cant deselect it)
+    tasksTextBox.pack()
     taskLabelFrame.pack(side=LEFT,padx=70)
 
 
@@ -146,3 +159,4 @@ def mainFunc(user):
     window.mainloop()
 
 mainFunc(['User'])
+
