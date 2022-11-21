@@ -1,0 +1,269 @@
+'''
+Main Window
+'''
+import calendar
+import datetime
+from tkinter.ttk import Combobox
+from tkinter import *
+import tkinter as tk
+from tkinter import messagebox
+import Class as TC # import class file
+from PIL import Image, ImageTk
+import csv
+
+#Updates:
+##Abel's current version of Main Page
+##Gets the user's attributes after running the login page
+##working calendar
+##working search function(template)
+
+TASKFILE = "taskList.csv"
+
+def printTasksToTextBox(user):
+    with open(TASKFILE, 'r') as file:
+        csvReader=csv.reader(file)
+        for member in csvReader:
+            if member[0] == user and member[2]==str(datetime.date.today()):
+                string = ''
+                for element in member: ##prints task details excluding username
+                    if element != member[0]:
+                        string = string+element+" | "
+                string=string+"\n****************************************"
+                tasksTextBox.insert(END, string)
+
+def searchFunc(criteria, tasksTextBox, details):
+    '''this function will display tasks
+    to the Task List text box on the main page'''
+    tasksTextBox.delete(1.0,END)
+    index = 0
+    match criteria:
+        case "Title": index=1
+        case "Date": index=2
+        case "Time": index=3
+        case "Duration": index=4
+        case "Description": index=5
+        
+    ##open the CSV file in read mode
+    with open(TASKFILE, 'r') as file:
+        csvReader=csv.reader(file)
+        for member in csvReader:
+            if member[index] == details:
+                string = ''
+                for element in member:
+                    if element != member[0]:
+                        string = string+element+" | "
+                string=string+"\n****************************************"
+                tasksTextBox.insert(END, string)
+            
+    
+
+
+def searchByResponse(sF, criteria, tasksTextBox):
+    ##sF = searchFrame2
+    ##criteria = retult of search combobox
+    ##details is what was written in the entry
+    widget_list = all_children(sF)
+    for item in widget_list:
+        item.destroy() ##destroys each widget in frame to be replaced later
+        
+    t="" 
+    match criteria:
+        case "Date":
+            t="Enter a Date (format: mm/dd/yyyy):"
+        case "Time":
+            t="Enter a Time (military time, format: 00:00):"
+        case "Title":
+            t="Enter Task Title:"
+        case "Duration":
+            t="Enter Duration (hours): "
+        case "Description":
+            t="Enter Task Description: "
+        case "No Criteria":
+            t ='''Choose Criteria above and
+press 'Go' to confirm selection.
+Then, type details in the entry
+box on the right.'''
+         
+    searchLabel2=Label(sF, text=t, bg="Green", fg='white', font=("Comic Sans MS", 11))
+    searchLabel2.pack(side=LEFT)
+
+    
+    searchEntry = Entry(sF)
+    searchButton=Button(sF, text="Search", command=lambda:searchFunc(criteria, tasksTextBox, searchEntry.get()))
+    
+    searchButton.pack(side=RIGHT)
+    searchEntry.pack(side=RIGHT, padx=5)
+
+    pass
+
+    
+
+def all_children(frame):
+    ##this function references all widgets in a frame
+    ##and returns it as a list
+    ##made to be recursive so another function
+    ##can iterate through and destory all widgets but not the entire frame
+    _list = frame.winfo_children() ##list of cF's widgets from bottom to top
+    for widget in _list:
+        if widget.winfo_children():
+            _list.extend(window.winfo_children())
+
+    return _list
+
+
+def responsiveCalendar(window, user, yC, monthsList, mC, cF, tasksTextBox):
+    widget_list = all_children(cF)
+    for item in widget_list:
+        item.destroy() ##destroys each widget in frame 
+    m=monthsList.index(mC)+1
+    today = datetime.date.today()
+    dayNum=0
+    x = calendar.monthrange(int(yC), m)
+    daysInMonth = x[1]
+    k=(datetime.date(int(yC), m, 1)).weekday() ##the first day of the chosen month of chosen year
+    count = 0
+    
+    ##Calendar frame and days of the week labels
+    days = ["Mon", "Tue","Wed","Thu","Fri","Sat", "Sun"]
+    dateToday = datetime.date.today()
+    ##creates a label for each weekday 0-6 starting with monday (0)
+    for d in range(len(days)):
+        weekdayLabel = Label(cF, text=days[d], bg='green', fg='white', font=("Comic Sans MS", 12))
+        weekdayLabel.grid(column=d, row=0)
+        
+            
+    ##Creates a button for each day and displays as a calendar
+    for i in range(6):
+        for j in range(7):
+            
+            if dayNum < daysInMonth:
+                if count<k: ##creates a label for as many days before first day of month
+                    label= Label(cF, text="   ", bg='green')
+                    label.grid(row=i+1, column=j, sticky='nsew')
+                    count+=1
+                else:
+                    dayNum+=1
+                    if today.day == dayNum and today.month == m and str(today.year)==yC:
+                        button = Button(cF, text=f"{dayNum}", fg="red")#, command=lambda:calendarButtonResponse(str(day),tasksTextBox, yC, mC))
+                        button.grid(row=i+1, column=j, sticky='nsew')
+                    else:
+                        button = Button(cF, text=f"{dayNum}")#,command=lambda:calendarButtonResponse(dayNum,tasksTextBox, yC, mC))
+                        button.grid(row=i+1, column=j, sticky='nsew')
+    cF.pack(side=TOP)
+            
+               
+
+def mainFunc(user):
+    window = Tk()
+
+    window.title('Task Management System')
+    window.geometry('600x600')
+    window.configure(bg='green')
+
+    BG_COLOR = "Green"
+    FG_COLOR = "White"
+
+    ##Welcome Banner
+    welcFrame = Frame(master=window)
+    welcomeBanner = Label(welcFrame, text=(user[0]+"'s Calendar"),
+                          bg='green', fg='white', font = ("Comic Sans MS",20))
+    welcomeBanner.pack(side=LEFT)
+    welcFrame.pack()
+
+
+    ##Months and Years as combo boxes + go button
+    dateFrame = Frame(master=window, bg='green')
+
+    monthsList = ["January", "February", "March", "April",
+                      "May", "June", "July", "August",
+                      "September","October","November","December"]
+    
+    monthsCombo = Combobox(dateFrame,width=10,state="readonly")
+    monthsCombo['values']= (monthsList)
+    monthsCombo.current((datetime.date.today().month)-1)
+    monthsCombo.pack(side=LEFT)
+
+
+    yearsList = ["2022", "2023", "2024", "2025",
+                      "2026", "2027", "2028", "2029",
+                      "2030","2031","2032","2033"]
+    
+    yearsCombo = Combobox(dateFrame,width=6,state="readonly")
+    yearsCombo['values']= (yearsList)
+    yearsCombo.current((datetime.date.today().year)-2022)
+    yearsCombo.pack(side=LEFT, pady=10)
+    
+    
+    calendarFrame=Frame(master=window, bg="Green")
+    showCalendarButton = Button(dateFrame, text="Show Calendar",
+                         command=lambda:responsiveCalendar(window, user,
+                        yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame, tasksTextBox))
+    showCalendarButton.pack(side=LEFT, padx=5)
+        
+    dateFrame.pack()
+
+    ##Frame for task related options
+    ##including task list,
+    ##task options (add, edit, remove)
+
+    taskFrame = Frame(master=window, bg= 'green')
+    taskLabelFrame = LabelFrame(taskFrame, text='Current Tasks', bg="Green", fg='white', font = ("Comic Sans MS",12))
+
+
+    ##if tasks exist for that day. else, label says: "There are no tasks scheduled for this day"
+    tasksTextBox = Text(taskLabelFrame, width = 40, height=10)
+    tasksTextBox.pack(side=BOTTOM)
+    taskLabelFrame.pack(side=LEFT,padx=50)
+
+    ##call responsive calendar function to display calendar
+    responsiveCalendar(window, user, yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame, tasksTextBox)
+
+
+    # Buttons
+    import Add
+    import Remove
+    import Edit
+    import Settings
+    addButton = Button(taskFrame, text="Add New Task", command=lambda:Add.AddFunc(window=Toplevel()))##default to selected day
+    editButton = Button(taskFrame, text="Edit A Task", command=lambda:Edit.EditFunc(window=Toplevel())) ##if not selected, "please select a task"
+    removeButton = Button(taskFrame, text="Remove A Task", command=lambda:Remove.RemoveWin(window=Toplevel()))##same as above and also "Are you sure?"
+    addButton.pack(pady=5)
+    editButton.pack(pady=5)
+    removeButton.pack(pady=5)
+
+    
+            
+    
+    settingsButton=Button(taskFrame, text="User Settings", command=lambda:Settings.Set(window=Toplevel()))
+    settingsButton.pack(pady=5)
+
+
+
+    ##Frame for search function
+    searchFrame1 = Frame(master=window, bg="Green")
+    searchLabel1=Label(searchFrame1, text="Search by:", bg="Green", fg='white', font=("Comic Sans MS", 13))
+    searchLabel1.pack(side=LEFT)
+
+    searchByCombo = Combobox(searchFrame1, width=12, state="readonly")
+    searchByCombo['values']= ("No Criteria", "Date", "Time",
+                      "Title", "Duration", "Description")
+    searchByCombo.set("No Criteria Set")
+    searchByCombo.current(0)
+
+    searchFrame2 = Frame(master=window, bg="Green")
+    searchByResponse(searchFrame2, searchByCombo.get(), tasksTextBox)
+    goButtonSearch = Button(searchFrame1, text="Go",
+                            command=lambda:searchByResponse(searchFrame2, searchByCombo.get(), tasksTextBox))
+
+    searchByCombo.pack(side=LEFT, pady=10)
+    goButtonSearch.pack(side=LEFT, padx=5)
+
+
+    searchFrame1.pack(side=TOP)
+    searchFrame2.pack(side=TOP)
+    taskFrame.pack(side=TOP, pady=10)
+
+    window.mainloop()
+
+
+##mainFunc(['User'])
