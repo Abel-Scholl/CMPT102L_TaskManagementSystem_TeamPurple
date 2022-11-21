@@ -1,13 +1,16 @@
-##11/19/22
+##11/21/22
 ##Team Purple
 ##Task Management System Main App Page
 
 ##Updates:
 ##Abel's current version of Main Page
 ##Gets the user's attributes after running the login page
-##calendar almost works?
-##radiobutton changed to text box
+##working calendar
+##working search function(template)
 
+##import Add
+##import Remove
+##import Settings
 import calendar
 import datetime
 from tkinter.ttk import Combobox
@@ -17,18 +20,105 @@ import TMSTaskClass as TC ##my current name for class file
 from tkinter import messagebox
 import csv
 
+TASKFILE = "taskList.csv"
+
+def printToTextBox():
+    tasksTextBox.insert(END, "Yippee!\n")
+
+def searchFunc(criteria, tasksTextBox, details):
+    '''this function will display tasks
+    to the Task List text box on the main page'''
+    tasksTextBox.delete(1.0,END)
+    index = 0
+    match criteria:
+        case "Date": index=1
+        case "Time": index=2
+        case "Title": index=3
+        case "Duration": index=4
+        case "Description": index=5
+        
+        ##open the CSV file in read mode
+    with open(TASKFILE, 'r') as file:
+        csvReader=csv.reader(file)
+        ##iterate through csv
+        for member in csvReader:
+        ##if thing in that index of the row == details:
+            if member[index] == details:
+            ##display result to the task list text box on main page
+                tasksTextBox.insert(END, "Yippee!\n")
+
+
+def searchByResponse(sF, criteria, tasksTextBox):
+    ##sF = searchFrame2
+    ##criteria = retult of search combobox
+    ##details is what was written in the entry
+    widget_list = all_children(sF)
+    for item in widget_list:
+        item.destroy() ##destroys each widget in frame to be replaced later
+        
+    t="" 
+    match criteria:
+        case "Date":
+            t="Enter a Date (format: yyyy/mm/dd):"
+        case "Time":
+            t="Enter a Time (military time, format: 00:00):"
+        case "Title":
+            t="Enter Task Title:"
+        case "Duration":
+            t="Enter Duration (hours): "
+        case "Description":
+            t="Enter Task Description: "
+        case "No Criteria":
+            t ='''Choose Criteria above and
+press 'Go' to confirm selection.
+Then, type details in the entry
+box on the right.'''
+         
+    searchLabel2=Label(sF, text=t, bg="Green", fg='white', font=("Comic Sans MS", 11))
+    searchLabel2.pack(side=LEFT)
+
+    
+    searchEntry = Entry(sF)
+    searchButton=Button(sF, text="Search", command=lambda:searchFunc(criteria, tasksTextBox, searchEntry.get()))
+    
+    searchButton.pack(side=RIGHT)
+    searchEntry.pack(side=RIGHT, padx=5)
+
+    
+
+def all_children(frame):
+    ##this function references all widgets in a frame
+    ##and returns it as a list
+    ##made to be recursive so another function
+    ##can iterate through and destory all widgets but not the entire frame
+    _list = frame.winfo_children() ##list of cF's widgets from bottom to top
+    for widget in _list:
+        if widget.winfo_children():
+            _list.extend(window.winfo_children())
+
+    return _list
+
+
 def responsiveCalendar(window, user, yC, monthsList, mC, cF):
+    widget_list = all_children(cF)
+    for item in widget_list:
+        item.destroy() ##destroys each widget in frame 
     m=monthsList.index(mC)+1
     today = datetime.date.today()
     dayNum=0
     x = calendar.monthrange(int(yC), m)
     daysInMonth = x[1]
-
-    
     k=(datetime.date(int(yC), m, 1)).weekday() ##the first day of the chosen month of chosen year
     count = 0
-
-    cF.destroy        
+    
+    ##Calendar frame and days of the week labels
+    days = ["Mon", "Tue","Wed","Thu","Fri","Sat", "Sun"]
+    dateToday = datetime.date.today()
+    ##creates a label for each weekday 0-6 starting with monday (0)
+    for d in range(len(days)):
+        weekdayLabel = Label(cF, text=days[d], bg='green', fg='white', font=("Comic Sans MS", 12))
+        weekdayLabel.grid(column=d, row=0)
+        
             
     ##Creates a button for each day
     ##when clicked, the current tasks will appear
@@ -50,7 +140,7 @@ def responsiveCalendar(window, user, yC, monthsList, mC, cF):
                     else:
                         button = Button(cF, text=f"{dayNum}")
                         button.grid(row=i+1, column=j, sticky='nsew')
-                    print(dayNum, dayNum <= daysInMonth)
+    cF.pack(side=TOP)
             
                
 
@@ -58,7 +148,7 @@ def mainFunc(user):
     window = Tk()
 
     window.title('Task Management System')
-    window.geometry('550x500')
+    window.geometry('600x600')
     window.configure(bg='green')
 
     BG_COLOR = "Green"
@@ -73,80 +163,53 @@ def mainFunc(user):
 
 
     ##Months and Years as combo boxes + go button
-    monthsFrame = Frame(master=window, bg='green')
+    dateFrame = Frame(master=window, bg='green')
 
     monthsList = ["January", "February", "March", "April",
                       "May", "June", "July", "August",
                       "September","October","November","December"]
     
-    monthsCombo = Combobox(monthsFrame,width=10,state="readonly")
+    monthsCombo = Combobox(dateFrame,width=10,state="readonly")
     monthsCombo['values']= (monthsList)
     monthsCombo.current((datetime.date.today().month)-1)
     monthsCombo.pack(side=LEFT)
+
 
     yearsList = ["2022", "2023", "2024", "2025",
                       "2026", "2027", "2028", "2029",
                       "2030","2031","2032","2033"]
     
-    yearsCombo = Combobox(monthsFrame,width=6,state="readonly")
+    yearsCombo = Combobox(dateFrame,width=6,state="readonly")
     yearsCombo['values']= (yearsList)
     yearsCombo.current((datetime.date.today().year)-2022)
     yearsCombo.pack(side=LEFT, pady=10)
-
-    ##Calendar as buttons
-    calendarFrame=Frame(master=window, bg="Green")
-    days = ["Mon", "Tue","Wed","Thu","Fri","Sat", "Sun"]
-    dateToday = datetime.date.today()
     
-    ##creates a label for each weekday starting with monday
-    for d in range(len(days)):
-        weekdayLabel = Label(calendarFrame, text=days[d], bg='green', fg='white', font=("Comic Sans MS", 12))
-        weekdayLabel.grid(column=d, row=0)
-
-    ##changes calendar to reflect selected info
-    showCalendarButton = Button(monthsFrame, text="Show Calendar",
+    
+    calendarFrame=Frame(master=window, bg="Green")
+    showCalendarButton = Button(dateFrame, text="Show Calendar",
                          command=lambda:responsiveCalendar(window, user, yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame))
-    showCalendarButton.pack(side=LEFT)
-
-    monthsFrame.pack()
+    showCalendarButton.pack(side=LEFT, padx=5)
         
-    calendarFrame.pack()
-
-    ##Frame for search function
-    searchFrame = Frame(master=window, bg="Green")
-    searchLabel=Label(searchFrame, text="Search by:", bg="Green", fg='white', font=("Comic Sans MS", 10))
-    searchLabel.pack(side=LEFT)
-
-    searchByCombo = Combobox(searchFrame, width=12, state="readonly")
-    searchByCombo['values']= ("No Criteria", "Month", "Day", "Year", "Time",
-                      "Title", "Duration", "Description")
-    searchByCombo.set("No Criteria Set")
-
-    searchByCombo.current(0)
-    searchByCombo.pack(side=LEFT, pady=10)
-
-    goButtonSearch = Button(searchFrame, text="Go")
-    goButtonSearch.pack(side=LEFT)
-
-    searchFrame.pack()
+    dateFrame.pack()
+    responsiveCalendar(window, user, yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame)
 
     ##Frame for task related options
     ##including task list,
     ##task options (add, edit, remove)
 
     taskFrame = Frame(master=window, bg= 'green')
-    taskLabelFrame = LabelFrame(taskFrame, text='Current Tasks', bg="Green", fg='white')
+    taskLabelFrame = LabelFrame(taskFrame, text='Current Tasks', bg="Green", fg='white', font = ("Comic Sans MS",12))
 
 
     ##if tasks exist for that day. else, label says: "There are no tasks scheduled for this day"
-    tasksTextBox = Text(taskLabelFrame, width = 20, height=10) ##This button is being weird. I dont know why. (i cant deselect it)
-    tasksTextBox.pack()
+    tasksTextBox = Text(taskLabelFrame, width = 20, height=10)#, state='disabled')
+    tasksTextBox.pack(side=BOTTOM)
     taskLabelFrame.pack(side=LEFT,padx=70)
 
 
-    addButton = Button(taskFrame, text= "Add New Task")##default to selected day
-    editButton = Button(taskFrame, text= "Edit Selected Task") ##if not selected, "please select a task"
-    removeButton = Button(taskFrame, text= "Remove Selected Task")##same as above and also "Are you sure?"
+    addButton = Button(taskFrame, text="Add New Task")#, command=Add.AddFunc)##default to selected day
+    editButton = Button(taskFrame, text="Edit Selected Task") ##if not selected, "please select a task"
+    removeButton = Button(taskFrame, text="Remove Selected Task")##same as above and also "Are you sure?"
     addButton.pack(pady=5)
     editButton.pack(pady=5)
     removeButton.pack(pady=5)
@@ -154,9 +217,30 @@ def mainFunc(user):
     settingsButton=Button(taskFrame, text="User Settings")
     settingsButton.pack(pady=5)
 
-    taskFrame.pack()
+    ##Frame for search function
+    searchFrame1 = Frame(master=window, bg="Green")
+    searchLabel1=Label(searchFrame1, text="Search by:", bg="Green", fg='white', font=("Comic Sans MS", 13))
+    searchLabel1.pack(side=LEFT)
+
+    searchByCombo = Combobox(searchFrame1, width=12, state="readonly")
+    searchByCombo['values']= ("No Criteria", "Date", "Time",
+                      "Title", "Duration", "Description")
+    searchByCombo.set("No Criteria Set")
+    searchByCombo.current(0)
+
+    searchFrame2 = Frame(master=window, bg="Green")
+    searchByResponse(searchFrame2, searchByCombo.get(), tasksTextBox)
+    goButtonSearch = Button(searchFrame1, text="Go",
+                            command=lambda:searchByResponse(searchFrame2, searchByCombo.get(), tasksTextBox))
+
+    searchByCombo.pack(side=LEFT, pady=10)
+    goButtonSearch.pack(side=LEFT, padx=5)
+
+
+    searchFrame1.pack(side=TOP)
+    searchFrame2.pack(side=TOP)
+    taskFrame.pack(side=TOP, pady=10)
 
     window.mainloop()
 
 mainFunc(['User'])
-
