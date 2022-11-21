@@ -1,0 +1,7 @@
+All of these files are required together in order for the TMS to work properly,
+this includes the images. They should all be in the same folder, do not seperate them.
+The zip file contains all of these requirements for easy download as opposed to downloading each .py seperately.
+
+The pillow library will be required in order for the program to appear properly.
+To install, type 'python -m pip install Pillow' in command prompt.
+To install on mac, type 'python3 -m pip install Pillow' in command prompt. 
