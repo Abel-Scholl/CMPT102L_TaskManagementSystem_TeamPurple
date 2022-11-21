@@ -1,43 +1,35 @@
-##11/21/22
-##Team Purple
-##Task Management System Main App Page
+'''
+Main Window
+'''
+import calendar
+import datetime
+from tkinter.ttk import Combobox
+from tkinter import *
+import tkinter as tk
+from tkinter import messagebox
+import Class as TC # import class file
+from PIL import Image, ImageTk
+import csv
 
-##Updates:
+#Updates:
 ##Abel's current version of Main Page
 ##Gets the user's attributes after running the login page
 ##working calendar
 ##working search function(template)
 
-##import Add
-##import Remove
-##import Settings
-import calendar
-import datetime
-from tkinter.ttk import Combobox
-from tkinter import *
-#from tkinter.ttk import Combobox
-import TMSTaskClass as TC ##my current name for class file
-from tkinter import messagebox
-import csv
-
 TASKFILE = "taskList.csv"
 
-def printToTextBox():
-    tasksTextBox.insert(END, "Yippee!\n")
-
-def calendarButtonResponse(tasksTextBox, day):
-    tasksTextBox.delete(1.0,END)
-
-    if day < 10:
-        day="0"+str(day)
-    else: day = str(day)
-    
+def printTasksToTextBox(user):
     with open(TASKFILE, 'r') as file:
         csvReader=csv.reader(file)
-        for task in csvReader:
-            ##if task[timeIndex].split('/') == day:
-                tasksTextBox.insert(END, task)
-    pass
+        for member in csvReader:
+            if member[0] == user and member[2]==str(datetime.date.today()):
+                string = ''
+                for element in member: ##prints task details excluding username
+                    if element != member[0]:
+                        string = string+element+" | "
+                string=string+"\n****************************************"
+                tasksTextBox.insert(END, string)
 
 def searchFunc(criteria, tasksTextBox, details):
     '''this function will display tasks
@@ -45,21 +37,25 @@ def searchFunc(criteria, tasksTextBox, details):
     tasksTextBox.delete(1.0,END)
     index = 0
     match criteria:
-        case "Date": index=1
-        case "Time": index=2
-        case "Title": index=3
+        case "Title": index=1
+        case "Date": index=2
+        case "Time": index=3
         case "Duration": index=4
         case "Description": index=5
         
-        ##open the CSV file in read mode
+    ##open the CSV file in read mode
     with open(TASKFILE, 'r') as file:
         csvReader=csv.reader(file)
-        ##iterate through csv
         for member in csvReader:
-        ##if thing in that index of the row == details:
             if member[index] == details:
-            ##display result to the task list text box on main page
-                tasksTextBox.insert(END, "Yippee!\n")
+                string = ''
+                for element in member:
+                    if element != member[0]:
+                        string = string+element+" | "
+                string=string+"\n****************************************"
+                tasksTextBox.insert(END, string)
+            
+    
 
 
 def searchByResponse(sF, criteria, tasksTextBox):
@@ -73,7 +69,7 @@ def searchByResponse(sF, criteria, tasksTextBox):
     t="" 
     match criteria:
         case "Date":
-            t="Enter a Date (format: yyyy/mm/dd):"
+            t="Enter a Date (format: mm/dd/yyyy):"
         case "Time":
             t="Enter a Time (military time, format: 00:00):"
         case "Title":
@@ -98,6 +94,8 @@ box on the right.'''
     searchButton.pack(side=RIGHT)
     searchEntry.pack(side=RIGHT, padx=5)
 
+    pass
+
     
 
 def all_children(frame):
@@ -113,7 +111,7 @@ def all_children(frame):
     return _list
 
 
-def responsiveCalendar(window, user, yC, monthsList, mC, cF):
+def responsiveCalendar(window, user, yC, monthsList, mC, cF, tasksTextBox):
     widget_list = all_children(cF)
     for item in widget_list:
         item.destroy() ##destroys each widget in frame 
@@ -134,10 +132,7 @@ def responsiveCalendar(window, user, yC, monthsList, mC, cF):
         weekdayLabel.grid(column=d, row=0)
         
             
-    ##Creates a button for each day
-    ##when clicked, the current tasks will appear
-    ##or a message saying there are no tasks for that day
-    
+    ##Creates a button for each day and displays as a calendar
     for i in range(6):
         for j in range(7):
             
@@ -149,10 +144,10 @@ def responsiveCalendar(window, user, yC, monthsList, mC, cF):
                 else:
                     dayNum+=1
                     if today.day == dayNum and today.month == m and str(today.year)==yC:
-                        button = Button(cF, text=f"{dayNum}", fg="red", command=calendarButtonResponse(tasksTextBox, dayNum))
+                        button = Button(cF, text=f"{dayNum}", fg="red")#, command=lambda:calendarButtonResponse(str(day),tasksTextBox, yC, mC))
                         button.grid(row=i+1, column=j, sticky='nsew')
                     else:
-                        button = Button(cF, text=f"{dayNum}",calendarButtonResponse(tasksTextBox, dayNum))
+                        button = Button(cF, text=f"{dayNum}")#,command=lambda:calendarButtonResponse(dayNum,tasksTextBox, yC, mC))
                         button.grid(row=i+1, column=j, sticky='nsew')
     cF.pack(side=TOP)
             
@@ -201,11 +196,11 @@ def mainFunc(user):
     
     calendarFrame=Frame(master=window, bg="Green")
     showCalendarButton = Button(dateFrame, text="Show Calendar",
-                         command=lambda:responsiveCalendar(window, user, yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame))
+                         command=lambda:responsiveCalendar(window, user,
+                        yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame, tasksTextBox))
     showCalendarButton.pack(side=LEFT, padx=5)
         
     dateFrame.pack()
-    responsiveCalendar(window, user, yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame)
 
     ##Frame for task related options
     ##including task list,
@@ -216,19 +211,27 @@ def mainFunc(user):
 
 
     ##if tasks exist for that day. else, label says: "There are no tasks scheduled for this day"
-    tasksTextBox = Text(taskLabelFrame, width = 20, height=10)#, state='disabled')
+    tasksTextBox = Text(taskLabelFrame, width = 40, height=10)
     tasksTextBox.pack(side=BOTTOM)
-    taskLabelFrame.pack(side=LEFT,padx=70)
+    taskLabelFrame.pack(side=LEFT,padx=50)
+
+    ##call responsive calendar function to display calendar
+    responsiveCalendar(window, user, yearsCombo.get(), monthsList, monthsCombo.get(), calendarFrame, tasksTextBox)
 
 
-    addButton = Button(taskFrame, text="Add New Task")#, command=Add.AddFunc)##default to selected day
-    editButton = Button(taskFrame, text="Edit Selected Task") ##if not selected, "please select a task"
-    removeButton = Button(taskFrame, text="Remove Selected Task")##same as above and also "Are you sure?"
+    # Buttons
+    import Add
+    import Remove
+    import Edit
+    import Settings
+    addButton = Button(taskFrame, text="Add New Task", command=lambda:Add.AddFunc(window=Toplevel()))##default to selected day
+    editButton = Button(taskFrame, text="Edit A Task", command=lambda:Edit.EditFunc(window=Toplevel())) ##if not selected, "please select a task"
+    removeButton = Button(taskFrame, text="Remove A Task", command=lambda:Remove.RemoveWin(window=Toplevel()))##same as above and also "Are you sure?"
     addButton.pack(pady=5)
     editButton.pack(pady=5)
     removeButton.pack(pady=5)
 
-    settingsButton=Button(taskFrame, text="User Settings")
+    settingsButton=Button(taskFrame, text="User Settings", command=lambda:Settings.Set(window=Toplevel()))
     settingsButton.pack(pady=5)
 
     ##Frame for search function
@@ -257,4 +260,6 @@ def mainFunc(user):
 
     window.mainloop()
 
-mainFunc(['User']
+
+##mainFunc(['User'])
+
