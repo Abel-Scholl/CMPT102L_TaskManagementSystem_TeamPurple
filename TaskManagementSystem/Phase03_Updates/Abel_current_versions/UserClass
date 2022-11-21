@@ -1,0 +1,34 @@
+# User Class with attributes of username, password, and admin 
+import csv
+
+class User():
+    
+    def __init__(self,u,p,a):
+        self.username=u ##str
+        self.password=p ##str
+        self.admin=a  ##boolean
+
+    def setUsername(self,u): #userame:str
+        self.username=u
+        
+    def setPassword(self,p): #password:str
+        self.password=p
+        
+    def setAdminStatus(self,a): #admin:boolean
+        self.admin=a
+        
+    def getUsername(self):
+        return self.username
+    
+    def getPassword(self):
+        return self.password
+    
+    def getAdminStatus(self):
+        return self.admin
+    
+    def createNewUser(self):
+        ##saves a user's information to a csv file of all users
+        with open('userLoginInfo.csv', 'a', newline='') as file:
+            csvWriter=csv.writer(file)
+            csvWriter.writerow([self.username, self.password, self.admin])
+
