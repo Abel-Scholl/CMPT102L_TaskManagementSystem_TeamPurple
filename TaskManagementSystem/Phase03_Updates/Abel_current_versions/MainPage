@@ -25,6 +25,20 @@ TASKFILE = "taskList.csv"
 def printToTextBox():
     tasksTextBox.insert(END, "Yippee!\n")
 
+def calendarButtonResponse(tasksTextBox, day):
+    tasksTextBox.delete(1.0,END)
+
+    if day < 10:
+        day="0"+str(day)
+    else: day = str(day)
+    
+    with open(TASKFILE, 'r') as file:
+        csvReader=csv.reader(file)
+        for task in csvReader:
+            ##if task[timeIndex].split('/') == day:
+                tasksTextBox.insert(END, task)
+    pass
+
 def searchFunc(criteria, tasksTextBox, details):
     '''this function will display tasks
     to the Task List text box on the main page'''
@@ -135,10 +149,10 @@ def responsiveCalendar(window, user, yC, monthsList, mC, cF):
                 else:
                     dayNum+=1
                     if today.day == dayNum and today.month == m and str(today.year)==yC:
-                        button = Button(cF, text=f"{dayNum}", fg="red")#, command=)
+                        button = Button(cF, text=f"{dayNum}", fg="red", command=calendarButtonResponse(tasksTextBox, dayNum))
                         button.grid(row=i+1, column=j, sticky='nsew')
                     else:
-                        button = Button(cF, text=f"{dayNum}")
+                        button = Button(cF, text=f"{dayNum}",calendarButtonResponse(tasksTextBox, dayNum))
                         button.grid(row=i+1, column=j, sticky='nsew')
     cF.pack(side=TOP)
             
@@ -243,4 +257,4 @@ def mainFunc(user):
 
     window.mainloop()
 
-mainFunc(['User'])
+mainFunc(['User']
