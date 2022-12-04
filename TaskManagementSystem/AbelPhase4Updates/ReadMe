@@ -1,0 +1,5 @@
+##I changed the CurrentUser csv file to a text file. It ended up being easier, less code.
+##I updated the Login, Main, Add, Settings pages
+##All are connected and fully functional
+##This version does NOT include messageboxes for Edit and Remove. 
+##We could also add confirmation messages to the search function. I just thought of it and i already uploaded it and im tired now so we'll do it next time
